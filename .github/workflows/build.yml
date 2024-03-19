@@ -1,0 +1,30 @@
+name: Build
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+    name: Build on ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: "ubuntu-20.04" }
+          - { os: "windows-2019" }
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Build
+        run: |
+          ${{ matrix.config.os == "ubuntu-20.04" && './build.sh' || '' }} ${{ matrix.config.os == "windows-2019" && '.\build.bat' || '' }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-build
+          path: |
+            PhysX/physx/include
+            PhysX/physx/bin/linux.clang/release
+            PhysX/physx/bin/linux.clang/debug
+            PhysX/physx/bin/vc17win64/release

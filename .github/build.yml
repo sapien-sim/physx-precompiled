@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: fxiangucsd/sapien-build-env:3.3
+      env:
+        CMAKE_BUILD_PARALLEL_LEVEL: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Build wheels
+        run: "git config --global --add safe.directory '*' && ./build.sh"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: ./wheelhouse/*.whl
+      - name: Update Nightly Release
+        uses: andelf/nightly-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+          name: 'Nightly Release'
+          prerelease: true
+          body: 'SAPIEN development nightly release. This release is mainly for internal testing. Stable releases are published to pypi https://pypi.org/project/sapien/'
+          files: |
+            ./wheelhouse/*.whl
