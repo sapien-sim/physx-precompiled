@@ -17,8 +17,9 @@ jobs:
         with:
           submodules: "true"
       - name: Build
+        shell: bash
         run: |
-          ${{ matrix.config.os == "ubuntu-20.04" && './build.sh' || '' }} ${{ matrix.config.os == "windows-2019" && '.\build.bat' || '' }}
+          ${{ matrix.config.os == 'ubuntu-20.04' && './build-linux.sh' || '' }} ${{ matrix.config.os == 'windows-2019' && './build-windows.sh' || '' }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
