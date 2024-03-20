@@ -113,11 +113,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: release_url
+        path: release_url
 
     - name: Download release artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.file }}
+        path: ${{ matrix.file }}
 
     - name: Read release url
       id: get_release
@@ -125,8 +127,9 @@ jobs:
         echo "upload_url=$(cat release_url/release_url.txt)" >> $GITHUB_OUTPUT
 
     - name: Zip release asset
+      working-directory: ${{ matrix.file }}
       run: |
-        zip -r ${{ matrix.file }}.zip ${{ matrix.file }}
+        zip -r ../${{ matrix.file }}.zip *
 
     - name: Upload Release Asset
       id: upload-release-asset
