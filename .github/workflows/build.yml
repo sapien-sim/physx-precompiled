@@ -16,6 +16,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "true"
+      - name: Read branch file
+        id: getbranch
+        shell: bash
+        run: echo "branch=$(cat branch)" >> $GITHUB_OUTPUT
       - name: Build
         shell: bash
         run: |
@@ -24,44 +28,82 @@ jobs:
         shell: bash
         run: |
           ls PhysX/physx/bin
-      - name: Upload Linux release
+
+      - name: Create Linux artifacts
         if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.config.os }}-release
-          path: |
-            PhysX/physx/include
-            PhysX/physx/bin/linux.clang/release
-            !**/*.so
-      - name: Upload Linux checked
-        if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.config.os }}-checked
-          path: |
-            PhysX/physx/include
-            PhysX/physx/bin/linux.clang/checked
-            !**/*.so
-      - name: Upload Windows release
+        shell: bash
+        working-directory: ./PhysX/physx
+        run: |
+          zip -r ../../physx.linux.release.zip PhysX/physx/include PhysX/physx/bin/linux.clang/release -x "**/*.so"
+          zip -r ../../physx.linux.checked.zip PhysX/physx/include PhysX/physx/bin/linux.clang/checked -x "**/*.so"
+          zip -j ../../physx.linux.so.zip PhysX/physx/bin/linux.clang/release/*.so
+      - name: Create Windows artifacts
         if: matrix.config.os == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        shell: bash
+        working-directory: ./PhysX/physx
+        run: |
+          zip -r ../../physx.windows.release.zip PhysX/physx/include PhysX/physx/bin/win.x86_64.vc143.mt/release -x "**/*.dll"
+          zip -j ../../physx.windows.dll.zip PhysX/physx/bin/win.x86_64.vc143.mt/release/*.dll
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
         with:
-          name: ${{ matrix.config.os }}-release
-          path: |
-            PhysX/physx/include
-            PhysX/physx/bin/win.x86_64.vc143.mt/release
-            !**/*.dll
-      - name: Upload Linux so
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.getbranch.outputs.branch }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Linux artifacts
         if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          name: ${{ matrix.config.os }}-dll
-          path: |
-            PhysX/physx/bin/linux.clang/release/*.so
-      - name: Upload Windows dll
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./physx.linux.release.zip
+          asset_name: physx.linux.release.zip
+          asset_content_type: application/zip
+      - name: Upload Linux artifacts
+        if: matrix.config.os == 'ubuntu-20.04'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./physx.linux.checked.zip
+          asset_name: physx.linux.checked.zip
+          asset_content_type: application/zip
+      - name: Upload Linux artifacts
+        if: matrix.config.os == 'ubuntu-20.04'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./physx.linux.so.zip
+          asset_name: physx.linux.so.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux artifacts
         if: matrix.config.os == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          name: ${{ matrix.config.os }}-dll
-          path: |
-            PhysX/physx/bin/win.x86_64.vc143.mt/release/*.dll
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./physx.windows.release.zip
+          asset_name: physx.windows.release.zip
+          asset_content_type: application/zip
+      - name: Upload Linux artifacts
+        if: matrix.config.os == 'windows-2022'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./physx.windows.dll.zip
+          asset_name: physx.windows.dll.zip
+          asset_content_type: application/zip
