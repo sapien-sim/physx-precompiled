@@ -27,7 +27,7 @@ jobs:
 
       - name: Upload Linux release
         if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-release
           path: |
@@ -36,7 +36,7 @@ jobs:
             !**/*.so
       - name: Upload Linux checked
         if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-checked
           path: |
@@ -45,7 +45,7 @@ jobs:
             !**/*.so
       - name: Upload Windows release
         if: matrix.config.os == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-release
           path: |
@@ -54,7 +54,7 @@ jobs:
             !**/*.dll
       - name: Upload Linux so
         if: matrix.config.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-so
           path: |
@@ -62,7 +62,7 @@ jobs:
             !*freeglut*
       - name: Upload Windows dll
         if: matrix.config.os == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-dll
           path: |
@@ -93,7 +93,7 @@ jobs:
       - name: Output Release URL File
         run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
       - name: Save Release URL File for publish
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: release_url
           path: release_url.txt
