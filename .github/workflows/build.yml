@@ -5,8 +5,6 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: ${{ matrix.config.os }}
-    permissions:
-      contents: write
     name: Build on ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -74,6 +72,8 @@ jobs:
   release:
     name: Create Github Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v2
       - name: Read branch file
@@ -101,6 +101,8 @@ jobs:
   publish:
     needs: [build, release]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         file: [linux-release, linux-checked, windows-release, linux-so, windows-dll]
