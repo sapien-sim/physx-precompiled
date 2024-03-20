@@ -55,7 +55,7 @@ jobs:
           draft: false
           prerelease: false
           release_name: ${{ steps.getbranch.outputs.branch }}
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.getbranch.outputs.branch }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
