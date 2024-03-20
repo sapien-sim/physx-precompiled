@@ -5,6 +5,8 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: ${{ matrix.config.os }}
+    permissions:
+      contents: write
     name: Build on ${{ matrix.config.os }}
     strategy:
       fail-fast: false
