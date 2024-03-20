@@ -34,18 +34,19 @@ jobs:
         shell: bash
         working-directory: ./PhysX/physx
         run: |
-          zip -r ../../physx.linux.release.zip PhysX/physx/include PhysX/physx/bin/linux.clang/release -x "**/*.so"
-          zip -r ../../physx.linux.checked.zip PhysX/physx/include PhysX/physx/bin/linux.clang/checked -x "**/*.so"
-          zip -j ../../physx.linux.so.zip PhysX/physx/bin/linux.clang/release/*.so
+          zip -r ../../physx.linux.release.zip include bin/linux.clang/release -x "**/*.so"
+          zip -r ../../physx.linux.checked.zip include bin/linux.clang/checked -x "**/*.so"
+          zip -j ../../physx.linux.so.zip bin/linux.clang/release/*.so
       - name: Create Windows artifacts
         if: matrix.config.os == 'windows-2022'
         shell: bash
         working-directory: ./PhysX/physx
         run: |
-          zip -r ../../physx.windows.release.zip PhysX/physx/include PhysX/physx/bin/win.x86_64.vc143.mt/release -x "**/*.dll"
-          zip -j ../../physx.windows.dll.zip PhysX/physx/bin/win.x86_64.vc143.mt/release/*.dll
+          7z a ../../physx.windows.release.zip include bin/win.x86_64.vc143.mt/release "-x!bin/win.x86_64.vc143.mt/release/*.dll"
+          cd bin/win.x86_64.vc143.mt/release/
+          7z a ../../../../../physx.windows.dll.zip *.dll
 
-      - name: release
+      - name: Create release
         uses: actions/create-release@v1
         id: create_release
         with:
@@ -87,7 +88,7 @@ jobs:
           asset_name: physx.linux.so.zip
           asset_content_type: application/zip
 
-      - name: Upload Linux artifacts
+      - name: Upload Windows artifacts
         if: matrix.config.os == 'windows-2022'
         uses: actions/upload-release-asset@v1
         env:
@@ -97,7 +98,7 @@ jobs:
           asset_path: ./physx.windows.release.zip
           asset_name: physx.windows.release.zip
           asset_content_type: application/zip
-      - name: Upload Linux artifacts
+      - name: Upload Windows artifacts
         if: matrix.config.os == 'windows-2022'
         uses: actions/upload-release-asset@v1
         env:
