@@ -5,4 +5,4 @@ sed -i 's/-Werror//g' PhysX/physx/source/compiler/cmake/linux/CMakeLists.txt
 cd PhysX/physx
 ./generate_projects.sh linux
 cmake --build compiler/linux-release --config Release
-cmake --build compiler/linux-debug --config Debug
+cmake --build compiler/linux-checked --config Checked

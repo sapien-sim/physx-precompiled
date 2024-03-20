@@ -20,12 +20,48 @@ jobs:
         shell: bash
         run: |
           ${{ matrix.config.os == 'ubuntu-20.04' && './build-linux.sh' || '' }} ${{ matrix.config.os == 'windows-2022' && './build-windows.sh' || '' }}
-      - name: Upload Artifacts
+      - name: List build
+        shell: bash
+        run: |
+          ls PhysX/physx/bin
+      - name: Upload Linux release
+        if: matrix.config.os == 'ubuntu-20.04'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.config.os }}-build
+          name: ${{ matrix.config.os }}-release
           path: |
             PhysX/physx/include
             PhysX/physx/bin/linux.clang/release
-            PhysX/physx/bin/linux.clang/debug
-            PhysX/physx/bin/vc17win64/release
+            !**/*.so
+      - name: Upload Linux checked
+        if: matrix.config.os == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-checked
+          path: |
+            PhysX/physx/include
+            PhysX/physx/bin/linux.clang/checked
+            !**/*.so
+      - name: Upload Windows release
+        if: matrix.config.os == 'windows-2022'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-release
+          path: |
+            PhysX/physx/include
+            PhysX/physx/bin/win.x86_64.vc143.mt/release
+            !**/*.dll
+      - name: Upload Linux so
+        if: matrix.config.os == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-dll
+          path: |
+            PhysX/physx/bin/linux.clang/release/*.so
+      - name: Upload Windows dll
+        if: matrix.config.os == 'windows-2022'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-dll
+          path: |
+            PhysX/physx/bin/win.x86_64.vc143.mt/release/*.dll
